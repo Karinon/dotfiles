@@ -1,21 +1,19 @@
 #!/bin/bash
-tmux display-message -p "#{pane_pid}"
 # Get the current pane details
-# pane_pid=$(tmux display-message -p "#{pane_pid}")
-# pane_command=$(ps -p $pane_pid -o comm=)
 pane_command=$(tmux display -p "#{pane_current_command}")
 
 # Check if the current pane is running SSH
 if [[ "$pane_command" == "ssh" ]]; then
     # Extract the SSH destination
-    tmux display-message -p "#{pane_current_command}"
-    ssh_dest=$(tmux capture-pane -p | grep -oP '(?<=ssh ).*@.*' | tail -n 1 | grep -oP '\b\S+@\S+\b' | sed 's/\.dkrz\.de$//')
+    ssh_dest=$(tmux capture-pane -p | grep -oP '(?<=ssh ).*@.*' | tail -n 1 | grep -oP '^\b\S+@\S+\b' | sed 's/\.dkrz\.de$//')
     if [[ -n "$ssh_dest" ]]; then
-        tmux rename-window "󰢩 $ssh_dest"
+        tmux rename-window "󰢩  $ssh_dest"
         exit 0
     fi
 elif [[ "$pane_command" == "vim" ]] || [[ "$pane_command" == "nvim" ]]; then
-        tmux rename-window " vim"
+        tmux rename-window " nvim"
+elif [[ "$pane_command" == "docker" ]]; then
+        tmux rename-window " docker"
 elif [[ "$pane_command" == "zsh" ]]; then
 # Otherwise, rename based on the current directory
     current_dir=$(tmux display -p "#{pane_current_path}")
@@ -42,5 +40,4 @@ elif [[ "$pane_command" == "zsh" ]]; then
     fi
 else
     tmux setw automatic-rename
-    #tmux rename-window "$pane_command"
 fi
